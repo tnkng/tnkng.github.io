@@ -1,14 +1,14 @@
-How to install ansible with pip on RPi3 Raspbian jessie
+# How to install ansible with pip on RPi3 Raspbian jessie
 
-Having purchased Raspbery Pi 3 recently, I wanted to see how far I can push the limits of this small computer and run few things for home network.
+Having purchased Raspberry Pi 3 recently, I wanted to see how far I can push the limits of this match box and run few things for our home network.
 
-As with every new gadget, and few manual experiments, I come to (for now!) stable config of number of services I want to run, so it came to a point where I want to automate this configuration so that I can expand (more RPi3 in order queue) and replicate this configuration.
+As with every new gadget, and few manual experiments, I come to (for now!) stable config on number of services I want to run, so it came to a point where I want to automate this configuration so that I can expand (more RPi3 in queue!) and replicate this configuration. And also for backup and restore purposes.
 
-My tool of choice for automation is ansible, so I went to apt-get me an ansible.... 
+My tool of choice for automation is `ansible`, so I went to apt-get me an ansible.... 
 
-For the context I'm running Raspbian jessie on the Pi, and it's really loaded with precompiled packages, but ansible is a bit old, and I wanted the latest stable ansible - 2.2.
+> For the context: I'm running `raspbian jessie` on the Pi, and it's really loaded with precompiled packages, but `ansible` is a bit old, and I wanted the latest stable.
 
-As there was a bit trial and error, running multiple pip install commands trying to come with appropriate system lib dependencies, I reckon some folks might find this useful, and handy shortcut. 
+As there was a bit trial and error, running multiple `pip install`s trying to come with appropriate system lib dependencies, I reckon some folks might find this useful, or just handy shortcut. 
 
 So, in all its glory pip install and required dependencies: 
 
@@ -17,7 +17,7 @@ pi@m: sudo apt install libyaml-dev libffi-dev libgmp-dev  libssl-dev
 pi@m: sudo pip install ansible
 ```
 
-and the result:
+and the result tail:
 ```
 ...
 Successfully installed ansible paramiko jinja2 PyYAML setuptools pycrypto cryptography pyasn1 MarkupSafe idna six enum34 ipaddress cffi pycparser
@@ -29,7 +29,7 @@ ansible 2.2.0.0
 pi@m:~ $
 ```
 
-And simple test:
+Simple test:
 ```
 pi@m:~ $ ansible all -m ping
 m.home.example.com | SUCCESS => {
@@ -39,7 +39,7 @@ m.home.example.com | SUCCESS => {
 pi@m:~ $
 ```
 
-It's not all clean though... If you pay attention to pip install logs, you might notice the following:
+It's not all clean though... If you pay attention to `pip` install logs, you might notice the following:
 ```
       Successfully uninstalled Jinja2
 Compiling /tmp/pip-build-5BonjN/jinja2/jinja2/asyncfilters.py ...
