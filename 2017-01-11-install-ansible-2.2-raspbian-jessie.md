@@ -12,13 +12,13 @@ As there was a bit trial and error, running multiple pip install commands trying
 
 So, in all its glory pip install and required dependencies: 
 
-{code}
+```
 pi@m: sudo apt install libyaml-dev libffi-dev libgmp-dev  libssl-dev
 pi@m: sudo pip install ansible
-{code}
+```
 
 and the result:
-{code}
+```
 ...
 Successfully installed ansible paramiko jinja2 PyYAML setuptools pycrypto cryptography pyasn1 MarkupSafe idna six enum34 ipaddress cffi pycparser
 Cleaning up...
@@ -27,20 +27,20 @@ ansible 2.2.0.0
   config file = /etc/ansible/ansible.cfg
   configured module search path = ['/usr/share/ansible']
 pi@m:~ $
-{code}
+```
 
 And simple test:
-{code}
+```
 pi@m:~ $ ansible all -m ping
 m.home.example.com | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
 pi@m:~ $
-{code}
+```
 
 It's not all clean though... If you pay attention to pip install logs, you might notice the following:
-{code}
+```
       Successfully uninstalled Jinja2
 Compiling /tmp/pip-build-5BonjN/jinja2/jinja2/asyncfilters.py ...
   File "/tmp/pip-build-5BonjN/jinja2/jinja2/asyncfilters.py", line 7
@@ -53,8 +53,6 @@ Compiling /tmp/pip-build-5BonjN/jinja2/jinja2/asyncsupport.py ...
     async def concat_async(async_gen):
             ^
 SyntaxError: invalid syntax
-{code}
+```
 
 This is documented in https://github.com/pallets/jinja/issues/643 and seems like it can be worked around using upgrading pip (https://github.com/pypa/pip/issues/1873) or just ignore it!
-
-Happy hacking!
