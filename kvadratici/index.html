@@ -9,12 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#E5E2D9;
-    --dot:#B4AF9E;
-    --ink:#23347A;
-    --graphite:#46443E;
-    --graphite-soft:#8B877C;
-    --red:#A8342A;
+    --paper:#EFEDE4;
+    --dot:#C3BEAD;
+    --ink:#1C2A66;
+    --graphite:#33312B;
+    --graphite-soft:#6A6659;
+    --red:#8F2A21;
     --cell:46px;
   }
   *{box-sizing:border-box}
@@ -38,7 +38,7 @@
   .sub{margin:0;max-width:46ch;font-size:15px;line-height:1.45}
   .sub b{color:var(--ink);font-weight:600}
 
-  .rule{height:1px;background:var(--graphite);opacity:.22;margin:22px 0 16px}
+  .rule{height:1px;background:var(--graphite);opacity:.3;margin:22px 0 16px}
 
   .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px}
   .field{display:flex;flex-direction:column;gap:4px}
@@ -53,7 +53,7 @@
   }
   button:hover,select:hover{border-color:var(--ink);color:var(--ink)}
   button:focus-visible,select:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-  button:disabled{opacity:.35;cursor:default;border-color:var(--graphite-soft)}
+  button:disabled{opacity:.5;cursor:default;border-color:var(--graphite-soft)}
   .spacer{flex:1}
 
   .score{
@@ -77,7 +77,7 @@
   .status .note{font-size:12px;color:var(--graphite-soft)}
   .status.over .turn{color:var(--red);font-weight:600;font-size:16px}
 
-  details{margin-top:26px;border-top:1px solid rgba(70,68,62,.22);padding-top:14px}
+  details{margin-top:26px;border-top:1px solid rgba(51,49,43,.3);padding-top:14px}
   summary{
     font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--graphite-soft);cursor:pointer;
@@ -94,36 +94,44 @@
 <body>
 <div class="wrap">
 
-  <p class="eyebrow">školska varijanta · prototip</p>
-  <h1>Kvadratići</h1>
-  <p class="sub">Povlačiš po jednu crticu između dve susedne tačke. Ko povuče <b>četvrtu</b> stranicu kvadratića — taj ga uzima, upisuje svoj znak i igra ponovo. Pobeđuje ko sakupi više kvadratića.</p>
+  <p class="eyebrow" id="eyebrow">školska varijanta · prototip</p>
+  <h1 id="h1">Kvadratići</h1>
+  <p class="sub" id="sub">Povlačiš po jednu crticu između dve susedne tačke. Ko povuče <b>četvrtu</b> stranicu kvadratića — taj ga uzima, upisuje svoj znak i igra ponovo. Pobeđuje ko sakupi više kvadratića.</p>
 
   <div class="rule"></div>
 
   <div class="controls">
     <div class="field">
-      <label for="size">Veličina</label>
+      <label for="lang" id="lblLang">Jezik</label>
+      <select id="lang">
+        <option value="sr">Latinica</option>
+        <option value="sr-cyrl">Ћирилица</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="size" id="lblSize">Veličina</label>
       <select id="size">
         <option value="3">3 × 3</option>
-        <option value="5" selected>5 × 5</option>
-        <option value="7">7 × 7</option>
+        <option value="5">5 × 5</option>
+        <option value="7" selected>7 × 7</option>
         <option value="9">9 × 9</option>
       </select>
     </div>
     <div class="field">
-      <label for="cut">Zasečeni uglovi</label>
+      <label for="cut" id="lblCut">Zasečeni uglovi</label>
       <select id="cut"></select>
     </div>
     <div class="field">
-      <label for="opp">Protivnik</label>
+      <label for="opp" id="lblOpp">Protivnik</label>
       <select id="opp">
-        <option value="off" selected>čovek</option>
-        <option value="easy">kompjuter — lako</option>
+        <option value="off">čovek</option>
+        <option value="easy" selected>kompjuter — lako</option>
         <option value="hard">kompjuter — teško</option>
       </select>
     </div>
     <div class="field">
-      <label for="border">Obris</label>
+      <label for="border" id="lblBorder">Obris</label>
       <select id="border">
         <option value="1" selected>unapred povučen</option>
         <option value="0">i on se igra</option>
@@ -147,8 +155,8 @@
   </div>
 
   <details>
-    <summary>Pravila</summary>
-    <ul>
+    <summary id="rulesSummary">Pravila</summary>
+    <ul id="rulesList">
       <li>Potez je jedna crtica između dve susedne tačke — vodoravno ili uspravno, nikad dijagonalno.</li>
       <li>Kvadratić pripada onome ko povuče njegovu četvrtu stranicu, bez obzira ko je povukao prethodne tri.</li>
       <li>Ko zatvori kvadratić, igra opet — i tako dok god zatvara.</li>
@@ -162,6 +170,139 @@
 <script>
 (function(){
   "use strict";
+
+  // ---- jezici / languages ----------------------------------------------
+
+  var I18N = {
+    "sr": {
+      htmlLang:"sr",
+      docTitle:"Kvadratići — školska varijanta",
+      eyebrow:"školska varijanta · prototip",
+      h1:"Kvadratići",
+      sub:'Povlačiš po jednu crticu između dve susedne tačke. Ko povuče <b>četvrtu</b> stranicu kvadratića — taj ga uzima, upisuje svoj znak i igra ponovo. Pobeđuje ko sakupi više kvadratića.',
+      lblLang:"Jezik", lblSize:"Veličina", lblCut:"Zasečeni uglovi",
+      lblOpp:"Protivnik", lblBorder:"Obris",
+      oppOff:"čovek", oppEasy:"kompjuter — lako", oppHard:"kompjuter — teško",
+      borderPre:"unapred povučen", borderPlay:"i on se igra",
+      cutNone:"bez zasecanja",
+      undo:"Poništi", reset:"Nova partija",
+      turn:"Na potezu: ", aiSuffix:" (kompjuter)", thinking:"Razmišlja…",
+      closed:"Zatvoren kvadratić — isti igrač je ponovo na potezu.",
+      remaining:"Preostalo crtica: ",
+      draw:"Nerešeno.", wins:"{} pobeđuje.",
+      boardAria:"Tabla", edgeAria:"Povuci crticu",
+      rulesSummary:"Pravila",
+      rules:[
+        "Potez je jedna crtica između dve susedne tačke — vodoravno ili uspravno, nikad dijagonalno.",
+        "Kvadratić pripada onome ko povuče njegovu četvrtu stranicu, bez obzira ko je povukao prethodne tri.",
+        "Ko zatvori kvadratić, igra opet — i tako dok god zatvara.",
+        "Kraj kad se povuku sve crtice. Više kvadratića pobeđuje.",
+        "Obris table je po dogovoru: ako je unapred povučen, uglovi kreću sa dve gotove stranice."
+      ]
+    },
+    "sr-cyrl": {
+      htmlLang:"sr-Cyrl",
+      docTitle:"Квадратићи — школска варијанта",
+      eyebrow:"школска варијанта · прототип",
+      h1:"Квадратићи",
+      sub:'Повлачиш по једну цртицу између две суседне тачке. Ко повуче <b>четврту</b> страницу квадратића — тај га узима, уписује свој знак и игра поново. Побеђује ко сакупи више квадратића.',
+      lblLang:"Језик", lblSize:"Величина", lblCut:"Засечени углови",
+      lblOpp:"Противник", lblBorder:"Обрис",
+      oppOff:"човек", oppEasy:"компјутер — лако", oppHard:"компјутер — тешко",
+      borderPre:"унапред повучен", borderPlay:"и он се игра",
+      cutNone:"без засецања",
+      undo:"Поништи", reset:"Нова партија",
+      turn:"На потезу: ", aiSuffix:" (компјутер)", thinking:"Размишља…",
+      closed:"Затворен квадратић — исти играч је поново на потезу.",
+      remaining:"Преостало цртица: ",
+      draw:"Нерешено.", wins:"{} побеђује.",
+      boardAria:"Табла", edgeAria:"Повуци цртицу",
+      rulesSummary:"Правила",
+      rules:[
+        "Потез је једна цртица између две суседне тачке — водоравно или усправно, никад дијагонално.",
+        "Квадратић припада ономе ко повуче његову четврту страницу, без обзира ко је повукао претходне три.",
+        "Ко затвори квадратић, игра опет — и тако док год затвара.",
+        "Крај кад се повуку све цртице. Више квадратића побеђује.",
+        "Обрис табле је по договору: ако је унапред повучен, углови крећу са две готове странице."
+      ]
+    },
+    "en": {
+      htmlLang:"en",
+      docTitle:"Dots & Boxes — schoolyard variant",
+      eyebrow:"schoolyard variant · prototype",
+      h1:"Dots &amp; Boxes",
+      sub:'You draw one line at a time between two neighbouring dots. Whoever draws the <b>fourth</b> side of a box takes it, writes their mark inside and moves again. Whoever collects more boxes wins.',
+      lblLang:"Language", lblSize:"Size", lblCut:"Cut corners",
+      lblOpp:"Opponent", lblBorder:"Border",
+      oppOff:"human", oppEasy:"computer — easy", oppHard:"computer — hard",
+      borderPre:"drawn in advance", borderPlay:"played too",
+      cutNone:"no cuts",
+      undo:"Undo", reset:"New game",
+      turn:"Turn: ", aiSuffix:" (computer)", thinking:"Thinking…",
+      closed:"Box closed — the same player moves again.",
+      remaining:"Lines left: ",
+      draw:"A draw.", wins:"{} wins.",
+      boardAria:"Board", edgeAria:"Draw a line",
+      rulesSummary:"Rules",
+      rules:[
+        "A move is a single line between two neighbouring dots — horizontal or vertical, never diagonal.",
+        "A box belongs to whoever draws its fourth side, no matter who drew the first three.",
+        "Close a box and you move again — for as long as you keep closing them.",
+        "The game ends once every line is drawn. More boxes wins.",
+        "The outer border is a matter of agreement: if it is drawn in advance, the corners start with two sides already in place."
+      ]
+    }
+  };
+
+  var LANG = "sr";
+  function t(){ return I18N[LANG] || I18N.sr; }
+
+  function loadLang(){
+    try{
+      var v = localStorage.getItem("kvadratici.lang");
+      if(v && I18N[v]) return v;
+    }catch(err){}
+    return "sr";
+  }
+  function saveLang(v){
+    try{ localStorage.setItem("kvadratici.lang", v); }catch(err){}
+  }
+
+  function setOptionText(selId, val, text){
+    var o = document.querySelector('#' + selId + ' option[value="' + val + '"]');
+    if(o) o.textContent = text;
+  }
+
+  function applyLang(){
+    var d = t();
+    document.documentElement.lang = d.htmlLang;
+    document.title = d.docTitle;
+    document.getElementById("eyebrow").textContent = d.eyebrow;
+    document.getElementById("h1").innerHTML = d.h1;
+    document.getElementById("sub").innerHTML = d.sub;
+
+    document.getElementById("lblLang").textContent = d.lblLang;
+    document.getElementById("lblSize").textContent = d.lblSize;
+    document.getElementById("lblCut").textContent = d.lblCut;
+    document.getElementById("lblOpp").textContent = d.lblOpp;
+    document.getElementById("lblBorder").textContent = d.lblBorder;
+
+    setOptionText("opp", "off", d.oppOff);
+    setOptionText("opp", "easy", d.oppEasy);
+    setOptionText("opp", "hard", d.oppHard);
+    setOptionText("border", "1", d.borderPre);
+    setOptionText("border", "0", d.borderPlay);
+    setOptionText("cut", "0", d.cutNone);
+
+    document.getElementById("undo").textContent = d.undo;
+    document.getElementById("reset").textContent = d.reset;
+    document.getElementById("rulesSummary").textContent = d.rulesSummary;
+
+    var ul = document.getElementById("rulesList");
+    ul.innerHTML = d.rules.map(function(x){ return "<li>" + x + "</li>"; }).join("");
+  }
+
+  // ---- igra / game ------------------------------------------------------
 
   var state = null;
 
@@ -304,22 +445,22 @@
   }
 
   function render(){
-    var st = state, S = cellSize(), n = st.n, off = 18;
+    var st = state, S = cellSize(), n = st.n, off = 18, d = t();
     var W = n*S + 2*off, H = W;
     var svg = [];
 
     svg.push('<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+
-             '" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Tabla">');
+             '" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="'+d.boardAria+'">');
     svg.push('<style>'+
-      '.dot{fill:#8B877C}'+
-      '.ln{stroke:#23347A;stroke-width:2.6;stroke-linecap:round;fill:none}'+
-      '.ln-pre{stroke:#23347A;stroke-width:2.6;stroke-linecap:round;fill:none;opacity:.45}'+
-      '.ln-last{stroke:#A8342A;stroke-width:3;stroke-linecap:round;fill:none}'+
-      '.m{fill:none;stroke:#23347A;stroke-width:2.6;stroke-linecap:round}'+
-      '.claim{fill:rgba(35,52,122,.06)}'+
+      '.dot{fill:#7D7A6E}'+
+      '.ln{stroke:#1C2A66;stroke-width:2.6;stroke-linecap:round;fill:none}'+
+      '.ln-pre{stroke:#1C2A66;stroke-width:2.6;stroke-linecap:round;fill:none;opacity:.55}'+
+      '.ln-last{stroke:#8F2A21;stroke-width:3;stroke-linecap:round;fill:none}'+
+      '.m{fill:none;stroke:#1C2A66;stroke-width:2.6;stroke-linecap:round}'+
+      '.claim{fill:rgba(28,42,102,.09)}'+
       '.hit{stroke:transparent;stroke-width:'+Math.max(12, S*0.34)+';cursor:pointer;fill:none}'+
-      '.hit:hover{stroke:rgba(35,52,122,.28)}'+
-      '.hit:focus-visible{stroke:rgba(35,52,122,.45);outline:none}'+
+      '.hit:hover{stroke:rgba(28,42,102,.32)}'+
+      '.hit:focus-visible{stroke:rgba(28,42,102,.5);outline:none}'+
     '</style>');
 
     // owned cell tint
@@ -332,13 +473,13 @@
     // corner dots
     var dots = {};
     st.cells.forEach(function(p){
-      [[p[0],p[1]],[p[0]+1,p[1]],[p[0],p[1]+1],[p[0]+1,p[1]+1]].forEach(function(d){
-        dots[d[0]+","+d[1]] = d;
+      [[p[0],p[1]],[p[0]+1,p[1]],[p[0],p[1]+1],[p[0]+1,p[1]+1]].forEach(function(dd){
+        dots[dd[0]+","+dd[1]] = dd;
       });
     });
     Object.keys(dots).forEach(function(k){
-      var d = dots[k];
-      svg.push('<circle class="dot" cx="'+(off+d[1]*S)+'" cy="'+(off+d[0]*S)+'" r="1.6"/>');
+      var dd = dots[k];
+      svg.push('<circle class="dot" cx="'+(off+dd[1]*S)+'" cy="'+(off+dd[0]*S)+'" r="1.6"/>');
     });
 
     // drawn edges
@@ -366,7 +507,7 @@
         if(st.drawn[e]) return;
         var g = edgeGeom(e, S, off);
         svg.push('<line class="hit" data-e="'+e+'" x1="'+g.x1+'" y1="'+g.y1+
-                 '" x2="'+g.x2+'" y2="'+g.y2+'" tabindex="0" role="button" aria-label="Povuci crticu"/>');
+                 '" x2="'+g.x2+'" y2="'+g.y2+'" tabindex="0" role="button" aria-label="'+d.edgeAria+'"/>');
       });
     }
 
@@ -382,16 +523,16 @@
     var turnEl = box.querySelector(".turn"), noteEl = box.querySelector(".note");
     box.classList.toggle("over", st.over);
     if(st.over){
-      turnEl.textContent = st.score.O === st.score.X ? "Nerešeno."
-        : (st.score.O > st.score.X ? "O" : "X") + " pobeđuje.";
+      turnEl.textContent = st.score.O === st.score.X ? d.draw
+        : d.wins.replace("{}", st.score.O > st.score.X ? "O" : "X");
       noteEl.textContent = st.score.O + " : " + st.score.X;
     } else {
-      turnEl.textContent = "Na potezu: " + st.turn + (isAiTurn() ? " (kompjuter)" : "");
+      turnEl.textContent = d.turn + st.turn + (isAiTurn() ? d.aiSuffix : "");
       var last = st.history[st.history.length-1];
-      noteEl.textContent = isAiTurn() ? "Razmišlja…"
+      noteEl.textContent = isAiTurn() ? d.thinking
         : (last && last.claimed.length)
-        ? "Zatvoren kvadratić — isti igrač je ponovo na potezu."
-        : "Preostalo crtica: " + openEdgeCount();
+        ? d.closed
+        : d.remaining + openEdgeCount();
     }
     document.getElementById("undo").disabled = !st.history.length;
   }
@@ -601,18 +742,19 @@
 
   // ---- wiring ----------------------------------------------------------
 
+  // Uvek najviši stepen zasecanja za datu veličinu; `keep` samo pri promeni jezika.
   function fillCutOptions(n, keep){
     var sel = document.getElementById("cut");
     var max = Math.floor((n-1)/2);
-    var prev = keep === undefined ? parseInt(sel.value,10) : keep;
     sel.innerHTML = "";
     for(var i = 0; i <= max; i++){
       var o = document.createElement("option");
       o.value = i;
-      o.textContent = i === 0 ? "bez zasecanja" : String(i);
+      o.textContent = i === 0 ? t().cutNone : String(i);
       sel.appendChild(o);
     }
-    sel.value = String(isNaN(prev) ? Math.min(1, max) : Math.min(prev, max));
+    var want = (keep === undefined || isNaN(keep)) ? max : Math.min(keep, max);
+    sel.value = String(want);
   }
 
   function start(){
@@ -629,9 +771,9 @@
 
   function act(target){
     if(AI.busy || isAiTurn()) return false;
-    var t = target.closest && target.closest("[data-e]");
-    if(!t) return false;
-    return play(state, t.getAttribute("data-e"));
+    var hit = target.closest && target.closest("[data-e]");
+    if(!hit) return false;
+    return play(state, hit.getAttribute("data-e"));
   }
 
   function afterHumanMove(){
@@ -647,6 +789,15 @@
     if(act(e.target)) afterHumanMove();
   });
 
+  document.getElementById("lang").addEventListener("change", function(){
+    LANG = I18N[this.value] ? this.value : "sr";
+    saveLang(LANG);
+    applyLang();
+    // Jezik ne prekida partiju — samo prepiši natpise.
+    fillCutOptions(parseInt(document.getElementById("size").value,10),
+                   parseInt(document.getElementById("cut").value,10));
+    render();
+  });
   document.getElementById("size").addEventListener("change", function(){
     fillCutOptions(parseInt(this.value,10)); start();
   });
@@ -664,7 +815,10 @@
   });
   window.addEventListener("resize", function(){ if(state) render(); });
 
-  fillCutOptions(5, 1);
+  LANG = loadLang();
+  document.getElementById("lang").value = LANG;
+  applyLang();
+  fillCutOptions(parseInt(document.getElementById("size").value, 10));
   start();
 })();
 </script>
